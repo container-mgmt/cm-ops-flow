@@ -1,0 +1,76 @@
+#How to set up an ops cluster
+
+## Prerequesties
+
+* An openshift 3.7 cluster with Promethues
+* Podified ManageIQ installed on the cluster (preferrably from docker.io/containermgmt/manageiq-pods)
+* A control host (to run the ansible playbooks from, can be the cluster master or your laptop)
+
+You'll need ansible 2.4 or newer for the manageiq modules and the python manageiq api client installed on the "control host".
+
+The "jq" command is also useful to have.
+
+Use the following command to install them (assuming your control host has EPEL enabled):
+
+``sudo yum install -y python-pip ansible jq; sudo pip install manageiq-client``
+
+## Needed Environment Variables
+
+* Route to CFME/ManageIQ
+* Username and password to CFME/ManageIQ (default: admin:smartvm)
+* Route to Promethues
+* Master Hostname
+* CA certificate for the master
+
+Assuming your control host is your cluster master, you can run this snippet to get all the variables:
+
+```
+export CFME_ROUTE="$(oc get route --namespace='openshift-management' -o go-template --template='{{.spec.host}}' httpd 2> /dev/null)"
+export HAWKULAR_ROUTE="$(oc get route --namespace='openshift-infra' -o go-template --template='{{.spec.host}}' hawkular-metrics 2> /dev/null)"
+export PROMETHEUS_ALERTS_ROUTE="$(oc get route --namespace='openshift-metrics' -o go-template --template='{{.spec.host}}' alerts 2> /dev/null)"
+export PROMETHEUS_METRICS_ROUTE="$(oc get route --namespace='openshift-metrics' -o go-template --template='{{.spec.host}}' prometheus 2> /dev/null)"
+export OCP_MASTER_HOST="$(oc get nodes -o name |grep master |sed -e 's/nodes\///g')"
+export MANAGEMENT_ADMIN_TOKEN="$(oc sa get-token -n management-infra management-admin)"
+export CA_CRT="$(cat /etc/origin/master/ca.crt)"
+```
+
+## Assign Alert Profiles to the Enterprise
+
+This step "enables" the two built-in alert profile. (**note:** there's no ansible module for this step yet).
+
+1. Find the hrefs for the two built-in profiles:
+
+```bash
+export PROMETHEUS_PROVIDER_PROFILE="$(curl -k -u admin:smartvm "https://${CFME_ROUTE}/api/alert_definition_profiles?filter\[\]=guid=a16fcf51-e2ae-492d-af37-19de881476ad" | jq -r ".resources[0].href")"``
+export PROMETHEUS_NODE_PROFILE="$(curl -k -u admin:smartvm "https://${CFME_ROUTE}/api/alert_definition_profiles?filter\[\]=guid=ff0fb114-be03-4685-bebb-b6ae8f13d7ad" | jq -r ".resources[0].href")"``
+```
+2. Assign them to the enterprise (This requires [ManageIQ/manageiq-api PR #177](https://github.com/ManageIQ/manageiq-api/pull/177)):
+
+```bash
+curl -k -u admin:smartvm -d "{\"action\": \"assign\", \"objects\": [\"https://${CFME_ROUTE}/api/enterprises/1\"]}" ${PROMETHEUS_PROVIDER_PROFILE}
+curl -k -u admin:smartvm -d "{\"action\": \"assign\", \"objects\": [\"https://${CFME_ROUTE}/api/enterprises/1\"]}" ${PROMETHEUS_NODE_PROFILE}
+```
+
+## Add the provider to ManageIQ
+
+Download the playbook from this github repository:
+
+``curl https://github.com/containermgmt/cm-ops-flow/blob/master/miq_add_provider.yml > miq_add_provider.yml``
+
+Run ansible:
+
+```bash
+ansible-playbook --extra-vars \
+                    "provider_name=ops_test_01 \
+                    management_admin_token=${MANAGEMENT_ADMIN_TOKEN} \
+                    ca_crt=\"${CA_CRT}\" \
+                    ocp_master_host=${OCP_MASTER_HOST} \
+                    cfme_route=${CFME_ROUTE} \
+                    prometheus_metrics_route=${PROMETHEUS_METRICS_ROUTE} \
+                    prometheus_alerts_route=${PROMETHEUS_ALERTS_ROUTE}" \
+miq_add_provider.yml
+```
+
+If this step fails, you might have ansible older than 2.4 or don't have the manageiq-api python package installed.
+
+## 
