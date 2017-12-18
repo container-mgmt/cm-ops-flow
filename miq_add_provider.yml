@@ -1,0 +1,36 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+  - name: Create a new provider in ManageIQ
+    manageiq_provider:
+      name: '{{ provider_name }}'
+      type: 'Openshift'
+      provider:
+        auth_key: '{{ management_admin_token }}'
+        hostname: '{{ ocp_master_host }}'
+        port: 8443
+        verify_ssl: true
+        security_protocol: "ssl-with-validation-custom-ca"
+        certificate_authority: '{{ ca_crt }}'
+      metrics:
+        auth_key: '{{ management_admin_token }}'
+        role: 'prometheus'
+        hostname: '{{ prometheus_metrics_route }}'
+        port: 443
+        verify_ssl: true
+        security_protocol: "ssl-with-validation-custom-ca"
+        certificate_authority: '{{ ca_crt }}'
+      alerts:
+        auth_key: '{{ management_admin_token }}'
+        role: 'prometheus_alerts'
+        hostname: '{{ prometheus_alerts_route }}'
+        port: 443
+        verify_ssl: true
+        security_protocol: "ssl-with-validation-custom-ca"
+        certificate_authority: '{{ ca_crt }}'
+      manageiq_connection:
+        url: "https://{{ cfme_route }}"
+        username: 'admin'
+        password: 'smartvm'
+        verify_ssl: false
