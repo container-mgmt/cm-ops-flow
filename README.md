@@ -73,4 +73,11 @@ miq_add_provider.yml
 
 If this step fails, you might have ansible older than 2.4 or don't have the manageiq-api python package installed.
 
-## 
+## Enable "Capacity & Utilization"
+There's no API for this stage (yet).
+
+Using the UI, click the top-right menu, then click Configuration.
+
+Under the *Server Control*->*Server Roles* heading, toggle all "Capacity & Utilization" switches to "on".
+
+Click "Save" on the buttom-right corner.
