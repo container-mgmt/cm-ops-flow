@@ -1,4 +1,4 @@
-#How to set up an ops cluster
+# How to set up an ops cluster
 
 ## Prerequesties
 
@@ -81,3 +81,39 @@ Using the UI, click the top-right menu, then click Configuration.
 Under the *Server Control*->*Server Roles* heading, toggle all "Capacity & Utilization" switches to "on".
 
 Click "Save" on the buttom-right corner.
+
+## Configure Prometheus
+
+(See [ManageIQ/manageiq issue #14238](https://github.com/ManageIQ/manageiq/issues/14238) for the original documentation)
+
+Run `oc edit configmap -n openshift-metrics prometheus` to edit the configmap,
+
+Add the alert rules under promethues.rules:
+
+```yaml
+# Supported annotations:
+# severity: ERROR|WARNING|INFO. defaults to ERROR.
+# miqTarget: ContainerNode|ExtManagementSystem, defaults to ContainerNode.
+# miqIgnore: "true|false", should ManageIQ pick up this alert, defaults to true.
+  prometheus.rules: |
+    groups:
+    - name: example-rules
+      interval: 30s # defaults to global interval
+      rules:
+      - alert: "Node Down"
+        expr: up{job="kubernetes-nodes"} == 0
+        annotations:
+          miqTarget: "ContainerNode"
+          severity: "ERROR"
+          url: "https://www.example.com/fixing_instructions"
+          message: "Node {{$labels.instance}} is down"
+      - alert: "Too Many Requests"
+        expr: rate(authenticated_user_requests[2m]) > 12
+        annotations:
+          miqTarget: "ExtManagementSystem"
+          severity: "ERROR"
+          url: "https://www.example.com/fixing_instructions"
+          message: "Too many authenticated requests"
+```
+To reload the configuration, delete the pod OR send a HUP signal to the Prometheus process.
+
