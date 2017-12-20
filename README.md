@@ -120,3 +120,7 @@ Add the alert rules under promethues.rules:
 ```
 To reload the configuration, delete the pod OR send a HUP signal to the Prometheus process.
 
+```bash
+oc rsh -n openshift-metrics -c prometheus prometheus-0
+kill -HUP 1
+```
