@@ -2,7 +2,7 @@
 
 ## Prerequesties
 
-* An openshift 3.7 cluster with Promethues
+* An openshift 3.7 cluster with Prometheus
 * Podified ManageIQ installed on the cluster (preferrably from docker.io/containermgmt/manageiq-pods)
 * A control host (to run the ansible playbooks from, can be the cluster master or your laptop)
 
@@ -18,7 +18,7 @@ Use the following command to install them (assuming your control host has EPEL e
 
 * Route to CFME/ManageIQ
 * Username and password to CFME/ManageIQ (default: admin:smartvm)
-* Route to Promethues
+* Route to Prometheus
 * Master Hostname
 * CA certificate for the master
 
@@ -90,7 +90,7 @@ Click "Save" on the buttom-right corner.
 
 Run `oc edit configmap -n openshift-metrics prometheus` to edit the configmap,
 
-Add the alert rules under promethues.rules:
+Add the alert rules under prometheus.rules:
 
 ```yaml
 # Supported annotations:
