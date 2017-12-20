@@ -102,7 +102,9 @@ Add the alert rules under prometheus.rules:
     - name: example-rules
       interval: 30s # defaults to global interval
       rules:
-      # Copy from here
+      # 
+      # ------------- Copy below this line -------------
+      #
       - alert: "Node Down"
         expr: up{job="kubernetes-nodes"} == 0
         annotations:
