@@ -55,7 +55,7 @@ curl -k -u admin:smartvm -d "{\"action\": \"assign\", \"objects\": [\"https://${
 
 Download the playbook from this github repository:
 
-``curl https://github.com/containermgmt/cm-ops-flow/blob/master/miq_add_provider.yml > miq_add_provider.yml``
+``curl https://raw.githubusercontent.com/container-mgmt/cm-ops-flow/master/miq_add_provider.yml > miq_add_provider.yml``
 
 Run ansible:
 
