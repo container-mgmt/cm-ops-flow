@@ -3,7 +3,7 @@
 ## Prerequesties
 
 * An openshift 3.7 cluster with Prometheus
-* Podified ManageIQ installed on the cluster (preferrably from docker.io/containermgmt/manageiq-pods)
+* Podified ManageIQ installed on the cluster (preferably from docker.io/containermgmt/manageiq-pods)
 * A control host (to run the ansible playbooks from, can be the cluster master or your laptop)
 
 You'll need ansible 2.4 or newer for the manageiq modules and the python manageiq api client installed on the "control host".
@@ -38,7 +38,7 @@ export CA_CRT="$(cat /etc/origin/master/ca.crt)"
 
 ## Assign Alert Profiles to the Enterprise
 
-This step "enables" the two built-in alert profile. (**note:** there's no ansible module for this step yet).
+This step "enables" the two built-in alert profiles (**note:** there's no ansible module for this step yet).
 
 1. Find the hrefs for the two built-in profiles:
 
