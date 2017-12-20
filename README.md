@@ -33,6 +33,8 @@ export OCP_MASTER_HOST="$(oc get nodes -o name |grep master |sed -e 's/nodes\///
 export MANAGEMENT_ADMIN_TOKEN="$(oc sa get-token -n management-infra management-admin)"
 export CA_CRT="$(cat /etc/origin/master/ca.crt)"
 ```
+## Add A Cluster Admin rule to your user
+``oadm polcy add-cluster-role-to-user cluster-admin $USER`` (replace $USER with your LDAP username)
 
 ## Assign Alert Profiles to the Enterprise
 
