@@ -34,7 +34,7 @@ export MANAGEMENT_ADMIN_TOKEN="$(oc sa get-token -n management-infra management-
 export CA_CRT="$(cat /etc/origin/master/ca.crt)"
 ```
 ## Add A Cluster Admin rule to your user
-``oadm polcy add-cluster-role-to-user cluster-admin $USER`` (replace $USER with your LDAP username)
+``oadm policy add-cluster-role-to-user cluster-admin $USER`` (replace $USER with your LDAP username)
 
 ## Assign Alert Profiles to the Enterprise
 
