@@ -32,7 +32,7 @@ export OPENSHIFT_PROMETHEUS_METRICS_ROUTE="$(oc get route --namespace='openshift
 export OPENSHIFT_MASTER_HOST="$(oc get nodes -o name |grep master |sed -e 's/nodes\///g')"
 export OPENSHIFT_MANAGEMENT_ADMIN_TOKEN="$(oc sa get-token -n management-infra management-admin)"
 export OPENSHIFT_CA_CRT="$(cat /etc/origin/master/ca.crt)"
-export OPENSHIFT_PROVIDER_NAEME="OCP37"
+export OPENSHIFT_PROVIDER_NAME="OCP37"
 ```
 ## Add A Cluster Admin rule to your user
 ``oadm policy add-cluster-role-to-user cluster-admin $USER`` (replace $USER with your LDAP username)
@@ -64,7 +64,7 @@ Run ansible:
 
 ```bash
 ansible-playbook --extra-vars \
-                    "provider_name=${OPENSHIFT_PROVIDER_NAEME}\
+                    "provider_name=${OPENSHIFT_PROVIDER_NAME}\
                     management_admin_token=${OPENSHIFT_MANAGEMENT_ADMIN_TOKEN} \
                     ca_crt=\"${OPENSHIFT_CA_CRT}\" \
                     OPENSHIFT_master_host=${OPENSHIFT_MASTER_HOST} \
