@@ -12,7 +12,7 @@ The "jq" command is also useful to have.
 
 Use the following command to install them (assuming your control host has EPEL enabled):
 
-``sudo yum install -y python-pip ansible jq; sudo pip install manageiq-client``
+``sudo yum install -y python-pip ansible jq wget; sudo pip install manageiq-client``
 
 ## Needed Environment Variables
 
@@ -22,20 +22,10 @@ Use the following command to install them (assuming your control host has EPEL e
 * Master Hostname
 * CA certificate for the master
 
-Assuming your control host is your cluster master, you can run this snippet to get all the variables:
-
-```
-export OPENSHIFT_CFME_ROUTE="$(oc get route --namespace='openshift-management' -o go-template --template='{{.spec.host}}' httpd 2> /dev/null)"
-export OPENSHIFT_HAWKULAR_ROUTE="$(oc get route --namespace='openshift-infra' -o go-template --template='{{.spec.host}}' hawkular-metrics 2> /dev/null)"
-export OPENSHIFT_PROMETHEUS_ALERTS_ROUTE="$(oc get route --namespace='openshift-metrics' -o go-template --template='{{.spec.host}}' alerts 2> /dev/null)"
-export OPENSHIFT_PROMETHEUS_METRICS_ROUTE="$(oc get route --namespace='openshift-metrics' -o go-template --template='{{.spec.host}}' prometheus 2> /dev/null)"
-export OPENSHIFT_MASTER_HOST="$(oc get nodes -o name |grep master |sed -e 's/nodes\///g')"
-export OPENSHIFT_MANAGEMENT_ADMIN_TOKEN="$(oc sa get-token -n management-infra management-admin)"
-export OPENSHIFT_CA_CRT="$(cat /etc/origin/master/ca.crt)"
-export OPENSHIFT_PROVIDER_NAME="OCP37"
-export OPENSHIFT_CFME_USER="admin"
-export OPENSHIFT_CFME_PASS="smartvm"
-export OPENSHIFT_CFME_AUTH="${OPENSHIFT_CFME_USER}:${OPENSHIFT_CFME_PASS}"
+```bash
+$ wget https://raw.githubusercontent.com/container-mgmt/cm-ops-flow/master/make_env.sh
+$ bash make_env.sh | tee cm_ops_vars.sh
+$ source cm_ops_vars.sh
 ```
 ## Add A Cluster Admin rule to your user
 ``oadm policy add-cluster-role-to-user cluster-admin $USER`` (replace $USER with your LDAP username)
