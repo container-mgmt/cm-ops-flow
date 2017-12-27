@@ -8,7 +8,7 @@
       type: 'Openshift'
       provider:
         auth_key: '{{ management_admin_token }}'
-        hostname: '{{ ocp_master_host }}'
+        hostname: '{{ openshift_master_host }}'
         port: 8443
         verify_ssl: true
         security_protocol: "ssl-with-validation-custom-ca"

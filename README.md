@@ -67,7 +67,7 @@ ansible-playbook --extra-vars \
                     "provider_name=${OPENSHIFT_PROVIDER_NAME}\
                     management_admin_token=${OPENSHIFT_MANAGEMENT_ADMIN_TOKEN} \
                     ca_crt=\"${OPENSHIFT_CA_CRT}\" \
-                    OPENSHIFT_master_host=${OPENSHIFT_MASTER_HOST} \
+                    openshift_master_host=${OPENSHIFT_MASTER_HOST} \
                     cfme_route=${OPENSHIFT_CFME_ROUTE} \
                     prometheus_metrics_route=${OPENSHIFT_PROMETHEUS_METRICS_ROUTE} \
                     prometheus_alerts_route=${OPENSHIFT_PROMETHEUS_ALERTS_ROUTE}" \
