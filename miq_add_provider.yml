@@ -31,6 +31,6 @@
         certificate_authority: '{{ ca_crt }}'
       manageiq_connection:
         url: "https://{{ cfme_route }}"
-        username: 'admin'
-        password: 'smartvm'
+        username: "{{ cfme_user }}"
+        password: "{{ cfme_pass }}"
         verify_ssl: false

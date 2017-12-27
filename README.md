@@ -33,6 +33,9 @@ export OPENSHIFT_MASTER_HOST="$(oc get nodes -o name |grep master |sed -e 's/nod
 export OPENSHIFT_MANAGEMENT_ADMIN_TOKEN="$(oc sa get-token -n management-infra management-admin)"
 export OPENSHIFT_CA_CRT="$(cat /etc/origin/master/ca.crt)"
 export OPENSHIFT_PROVIDER_NAME="OCP37"
+export OPENSHIFT_CFME_USER="admin"
+export OPENSHIFT_CFME_PASS="smartvm"
+export OPENSHIFT_CFME_AUTH="${OPENSHIFT_CFME_USER}:${OPENSHIFT_CFME_PASS}"
 ```
 ## Add A Cluster Admin rule to your user
 ``oadm policy add-cluster-role-to-user cluster-admin $USER`` (replace $USER with your LDAP username)
@@ -44,14 +47,14 @@ This step "enables" the two built-in alert profiles (**note:** there's no ansibl
 1. Find the hrefs for the two built-in profiles:
 
 ```bash
-export PROMETHEUS_PROVIDER_PROFILE="$(curl -k -u admin:smartvm "https://${OPENSHIFT_CFME_ROUTE}/api/alert_definition_profiles?filter\[\]=guid=a16fcf51-e2ae-492d-af37-19de881476ad" | jq -r ".resources[0].href")"``
-export PROMETHEUS_NODE_PROFILE="$(curl -k -u admin:smartvm "https://${OPENSHIFT_CFME_ROUTE}/api/alert_definition_profiles?filter\[\]=guid=ff0fb114-be03-4685-bebb-b6ae8f13d7ad" | jq -r ".resources[0].href")"``
+export PROMETHEUS_PROVIDER_PROFILE="$(curl -k -u ${OPENSHIFT_CFME_AUTH} "https://${OPENSHIFT_CFME_ROUTE}/api/alert_definition_profiles?filter\[\]=guid=a16fcf51-e2ae-492d-af37-19de881476ad" | jq -r ".resources[0].href")"``
+export PROMETHEUS_NODE_PROFILE="$(curl -k -u ${OPENSHIFT_CFME_AUTH} "https://${OPENSHIFT_CFME_ROUTE}/api/alert_definition_profiles?filter\[\]=guid=ff0fb114-be03-4685-bebb-b6ae8f13d7ad" | jq -r ".resources[0].href")"``
 ```
 2. Assign them to the enterprise (This requires [ManageIQ/manageiq-api PR #177](https://github.com/ManageIQ/manageiq-api/pull/177)):
 
 ```bash
-curl -k -u admin:smartvm -d "{\"action\": \"assign\", \"objects\": [\"https://${OPENSHIFT_CFME_ROUTE}/api/enterprises/1\"]}" ${PROMETHEUS_PROVIDER_PROFILE}
-curl -k -u admin:smartvm -d "{\"action\": \"assign\", \"objects\": [\"https://${OPENSHIFT_CFME_ROUTE}/api/enterprises/1\"]}" ${PROMETHEUS_NODE_PROFILE}
+curl -k -u ${OPENSHIFT_CFME_AUTH} -d "{\"action\": \"assign\", \"objects\": [\"https://${OPENSHIFT_CFME_ROUTE}/api/enterprises/1\"]}" ${PROMETHEUS_PROVIDER_PROFILE}
+curl -k -u ${OPENSHIFT_CFME_AUTH} -d "{\"action\": \"assign\", \"objects\": [\"https://${OPENSHIFT_CFME_ROUTE}/api/enterprises/1\"]}" ${PROMETHEUS_NODE_PROFILE}
 ```
 
 ## Add the provider to ManageIQ
@@ -70,7 +73,9 @@ ansible-playbook --extra-vars \
                     openshift_master_host=${OPENSHIFT_MASTER_HOST} \
                     cfme_route=${OPENSHIFT_CFME_ROUTE} \
                     prometheus_metrics_route=${OPENSHIFT_PROMETHEUS_METRICS_ROUTE} \
-                    prometheus_alerts_route=${OPENSHIFT_PROMETHEUS_ALERTS_ROUTE}" \
+                    prometheus_alerts_route=${OPENSHIFT_PROMETHEUS_ALERTS_ROUTE} \
+                    cfme_user=${OPENSHIFT_CFME_USER} \
+                    cfme_pass=${OPENSHIFT_CFME_PASS}" \
 miq_add_provider.yml
 ```
 
