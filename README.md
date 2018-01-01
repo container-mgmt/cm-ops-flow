@@ -122,3 +122,8 @@ To reload the configuration, delete the pod OR send a HUP signal to the Promethe
 oc rsh -n openshift-metrics -c prometheus prometheus-0
 kill -HUP 1
 ```
+
+## Expose the alerts manager for external access
+
+wget https://raw.githubusercontent.com/container-mgmt/cm-ops-flow/master/expose_alertmanager.sh
+bash expose_alertmanager.sh
