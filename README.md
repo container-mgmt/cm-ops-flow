@@ -125,5 +125,8 @@ kill -HUP 1
 
 ## Expose the alerts manager for external access
 
+```bash
 wget https://raw.githubusercontent.com/container-mgmt/cm-ops-flow/master/expose_alertmanager.sh
 bash expose_alertmanager.sh
+```
+
