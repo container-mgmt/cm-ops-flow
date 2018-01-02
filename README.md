@@ -106,15 +106,15 @@ Add the alert rules under prometheus.rules:
         annotations:
           miqTarget: "ContainerNode"
           severity: "ERROR"
-          url: "https://www.example.com/fixing_instructions"
+          url: "https://www.example.com/node_down_fixing_instructions"
           message: "Node {{$labels.instance}} is down"
-      - alert: "Too Many Requests"
-        expr: rate(authenticated_user_requests[2m]) > 12
+      - alert: "Too Many Pods"
+        expr: sum(kubelet_running_pod_count) > 30
         annotations:
           miqTarget: "ExtManagementSystem"
           severity: "ERROR"
-          url: "https://www.example.com/fixing_instructions"
-          message: "Too many authenticated requests"
+          url: "https://www.example.com/too_many_pods_fixing_instructions"
+          message: "Too many running pods"
 ```
 To reload the configuration, delete the pod OR send a HUP signal to the Prometheus process.
 
@@ -128,5 +128,54 @@ kill -HUP 1
 ```bash
 wget https://raw.githubusercontent.com/container-mgmt/cm-ops-flow/master/expose_alertmanager.sh
 bash expose_alertmanager.sh
+# Add the new route to environment
+bash make_env.sh | tee cm_ops_vars.sh
+source cm_ops_vars.sh
 ```
 
+
+## Trigger test scenarios
+
+Triggering The "Too Many Pods" test scenario and measuring different intervals related to alerting:
+ 
+```bash
+# trigger "Too Many Pods" test scenario
+export NS="alerts-test"
+oc create namespace "${NS}"
+
+# Create a replication controller and scale it 
+cat <<EOF | oc create -n "${NS}" -f - 2>&1
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: nginx
+spec:
+  replicas: 1
+  selector:
+    app: nginx
+  template:
+    metadata:
+      name: nginx
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+EOF
+
+oc scale rc -n ${NS} nginx --replicas=10
+
+# Measure intervals
+wget https://raw.githubusercontent.com/container-mgmt/cm-ops-flow/master/measure_alerts.sh
+bash measure_alerts.sh
+
+# Resolve & Measure
+oc scale rc -n ${NS} nginx --replicas=0
+bash measure_alerts.sh
+
+# Clean Up
+oc delete namespace ${NS} 
+```
