@@ -34,17 +34,23 @@ $ source cm_ops_vars.sh
 
 This step "enables" the two built-in alert profiles (**note:** there's no ansible module for this step yet).
 
-1. Find the hrefs for the two built-in profiles:
+1. Find the href of the MiqEnterprise object (usually 1, sometimes not)
 
 ```bash
-export PROMETHEUS_PROVIDER_PROFILE="$(curl -k -u ${OPENSHIFT_CFME_AUTH} "https://${OPENSHIFT_CFME_ROUTE}/api/alert_definition_profiles?filter\[\]=guid=a16fcf51-e2ae-492d-af37-19de881476ad" | jq -r ".resources[0].href")"``
-export PROMETHEUS_NODE_PROFILE="$(curl -k -u ${OPENSHIFT_CFME_AUTH} "https://${OPENSHIFT_CFME_ROUTE}/api/alert_definition_profiles?filter\[\]=guid=ff0fb114-be03-4685-bebb-b6ae8f13d7ad" | jq -r ".resources[0].href")"``
+ export ENTERPRISE_HREF="$(curl -u ${OPENSHIFT_CFME_AUTH} https://${OPENSHIFT_CFME_ROUTE}/api/enterprises/ | jq -r ".resources[0].href")"
 ```
-2. Assign them to the enterprise (This requires [ManageIQ/manageiq-api PR #177](https://github.com/ManageIQ/manageiq-api/pull/177)):
+
+2. Find the hrefs for the two built-in profiles:
 
 ```bash
-curl -k -u ${OPENSHIFT_CFME_AUTH} -d "{\"action\": \"assign\", \"objects\": [\"https://${OPENSHIFT_CFME_ROUTE}/api/enterprises/1\"]}" ${PROMETHEUS_PROVIDER_PROFILE}
-curl -k -u ${OPENSHIFT_CFME_AUTH} -d "{\"action\": \"assign\", \"objects\": [\"https://${OPENSHIFT_CFME_ROUTE}/api/enterprises/1\"]}" ${PROMETHEUS_NODE_PROFILE}
+export PROMETHEUS_PROVIDER_PROFILE="$(curl -k -u ${OPENSHIFT_CFME_AUTH} "https://${OPENSHIFT_CFME_ROUTE}/api/alert_definition_profiles?filter\[\]=guid=a16fcf51-e2ae-492d-af37-19de881476ad" | jq -r ".resources[0].href")"
+export PROMETHEUS_NODE_PROFILE="$(curl -k -u ${OPENSHIFT_CFME_AUTH} "https://${OPENSHIFT_CFME_ROUTE}/api/alert_definition_profiles?filter\[\]=guid=ff0fb114-be03-4685-bebb-b6ae8f13d7ad" | jq -r ".resources[0].href")"
+```
+3. Assign them to the enterprise (This requires [ManageIQ/manageiq-api PR #177](https://github.com/ManageIQ/manageiq-api/pull/177)):
+
+```bash
+curl -k -u ${OPENSHIFT_CFME_AUTH} -d "{\"action\": \"assign\", \"objects\": [\"${ENTERPRISE_HREF}\"]}" ${PROMETHEUS_PROVIDER_PROFILE}
+curl -k -u ${OPENSHIFT_CFME_AUTH} -d "{\"action\": \"assign\", \"objects\": [\"${ENTERPRISE_HREF}\"]}" ${PROMETHEUS_NODE_PROFILE}
 ```
 
 ## Add the provider to ManageIQ
