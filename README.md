@@ -86,7 +86,7 @@ Under the *Server Control*->*Server Roles* heading, toggle all "Capacity & Utili
 
 Click "Save" on the buttom-right corner.
 
-## Configure Prometheus
+## Configure Alerts on Prometheus
 
 (See [ManageIQ/manageiq issue #14238](https://github.com/ManageIQ/manageiq/issues/14238) for the original documentation)
 
