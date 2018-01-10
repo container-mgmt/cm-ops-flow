@@ -148,32 +148,32 @@ cat <<EOF | oc create -n "${NS}" -f - 2>&1
 apiVersion: v1
 kind: ReplicationController
 metadata:
-  name: nginx
+  name: dummy
 spec:
   replicas: 1
   selector:
-    app: nginx
+    app: dummy
   template:
     metadata:
-      name: nginx
+      name: dummy
       labels:
-        app: nginx
+        app: dummy
     spec:
       containers:
-      - name: nginx
-        image: nginx
+      - name: dummy
+        image: registry.hub.docker.com/mtayer/request-dumper
         ports:
         - containerPort: 80
 EOF
 
-oc scale rc -n ${NS} nginx --replicas=10
+oc scale rc -n ${NS} dummy --replicas=10
 
 # Measure intervals
 wget https://raw.githubusercontent.com/container-mgmt/cm-ops-flow/master/measure_alerts.sh
 bash measure_alerts.sh
 
 # Resolve & Measure
-oc scale rc -n ${NS} nginx --replicas=0
+oc scale rc -n ${NS} dummy --replicas=0
 bash measure_alerts.sh
 
 # Clean Up
