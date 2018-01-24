@@ -146,11 +146,10 @@ Triggering The "Too Many Pods" test scenario and measuring different intervals r
  
 ```bash
 # trigger "Too Many Pods" test scenario
-export NS="alerts-test"
-oc create namespace "${NS}"
+oc create namespace "${OPENSHIFT_MONITORING_DEMO_NS}"
 
 # Create a replication controller and scale it 
-cat <<EOF | oc create -n "${NS}" -f - 2>&1
+cat <<EOF | oc create -n "${OPENSHIFT_MONITORING_DEMO_NS}" -f - 2>&1
 apiVersion: v1
 kind: ReplicationController
 metadata:
@@ -172,16 +171,16 @@ spec:
         - containerPort: 80
 EOF
 
-oc scale rc -n ${NS} dummy --replicas=10
+oc scale rc -n ${OPENSHIFT_MONITORING_DEMO_NS} dummy --replicas=10
 
 # Measure intervals
 wget https://raw.githubusercontent.com/container-mgmt/cm-ops-flow/master/measure_alerts.sh
 bash measure_alerts.sh
 
 # Resolve & Measure
-oc scale rc -n ${NS} dummy --replicas=0
+oc scale rc -n ${OPENSHIFT_MONITORING_DEMO_NS} dummy --replicas=0
 bash measure_alerts.sh
 
 # Clean Up
-oc delete namespace ${NS} 
+oc delete namespace ${OPENSHIFT_MONITORING_DEMO_NS} 
 ```
