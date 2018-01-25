@@ -96,9 +96,11 @@ Add the alert rules under prometheus.rules:
 
 ```yaml
 # Supported annotations:
-# severity: ERROR|WARNING|INFO. defaults to ERROR.
-# miqTarget: ContainerNode|ExtManagementSystem, defaults to ContainerNode.
-# miqIgnore: "true|false", should ManageIQ pick up this alert, defaults to true.
+#   miqTarget: ContainerNode|ExtManagementSystem, defaults to ContainerNode.
+#   miqIgnore: "true|false", should ManageIQ pick up this alert, defaults to true.
+#   description: A string the screen will show 
+# labels: 
+#   severity: ERROR|WARNING|INFO. defaults to ERROR.
   prometheus.rules: |
     groups:
     - name: example-rules
@@ -111,16 +113,19 @@ Add the alert rules under prometheus.rules:
         expr: up{job="kubernetes-nodes"} == 0
         annotations:
           miqTarget: "ContainerNode"
-          severity: "ERROR"
           url: "https://www.example.com/node_down_fixing_instructions"
-          message: "Node {{$labels.instance}} is down"
+          description: "Node {{$labels.instance}} is down"
+        labels:
+          severity: "ERROR"
       - alert: "Too Many Pods"
         expr: sum(kubelet_running_pod_count) > 30
         annotations:
           miqTarget: "ExtManagementSystem"
-          severity: "ERROR"
           url: "https://www.example.com/too_many_pods_fixing_instructions"
-          message: "Too many running pods"
+          description: "Too many running pods"
+        labels:
+          severity: "ERROR"
+          
 ```
 To reload the configuration, delete the pod OR send a HUP signal to the Prometheus process.
 
